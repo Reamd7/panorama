@@ -40,17 +40,17 @@ const Panorama: React.FC<PanoramaProps> = ({ src }) => {
 
     const A90 = Math.PI * 0.5;
     const A180 = Math.PI;
-    // const A270 = Math.PI * 1.5;
+    const A270 = Math.PI * 1.5;
     const transfroms: ((plane: THREE.Object3D) => THREE.Object3D)[] = [
-      (p) => p.translateZ(size).rotateZ(A180),
-      (p) => p.translateZ(-size).rotateZ(A180),
-      (p) => p.translateX(size).rotateY(A90).rotateZ(A180),
-      (p) => p.translateX(-size).rotateY(A90).rotateZ(A180),
+      (p) => p.translateZ(-size).rotateY(A180),
+      (p) => p.translateZ(size).rotateY(A180),
+      (p) => p.translateX(-size).rotateY(A270),
+      (p) => p.translateX(size).rotateY(A270),
       (p) => p.translateY(size).rotateX(A90).rotateY(A180).rotateZ(A90),
       (p) => p.translateY(-size).rotateX(A90).rotateY(A180).rotateZ(A90),
     ];
 
-    [imageF, imageB, imageR, imageL, imageU, imageD].forEach((image, i) => {
+    [imageF, imageB, imageL, imageR, imageU, imageD].forEach((image, i) => {
       const geometry = new THREE.PlaneGeometry(size * 2, size * 2);
       const texture = new THREE.TextureLoader().load(image);
       const material = new THREE.MeshBasicMaterial({
@@ -59,8 +59,7 @@ const Panorama: React.FC<PanoramaProps> = ({ src }) => {
       });
 
       const plane = new THREE.Mesh(geometry, material);
-      transfroms[i](plane);
-      scene.add(plane);
+      scene.add(transfroms[i](plane));
     });
 
     let rafId = -1;
