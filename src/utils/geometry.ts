@@ -41,7 +41,7 @@ export function uv2latlnt(face: Face, u: number, v: number) {
   switch (face) {
     case Face.FRONT:
       // FRONT
-      return xyz2latlnt(-1, u, v);
+      return xyz2latlnt(-1, -u, v);
     case Face.BACK:
       // BACK
       return xyz2latlnt(1, u, v);
@@ -50,13 +50,13 @@ export function uv2latlnt(face: Face, u: number, v: number) {
       return xyz2latlnt(u, -1, v);
     case Face.LEFT:
       // LEFT
-      return xyz2latlnt(u, 1, v);
+      return xyz2latlnt(-u, 1, v);
     case Face.UP:
       // UP
-      return xyz2latlnt(u, v, 1);
+      return xyz2latlnt(-v, -u, -1);
     case Face.DOWN:
       // DOWN
-      return xyz2latlnt(u, v, -1);
+      return xyz2latlnt(v, -u, 1);
     // no defalut
   }
 }
