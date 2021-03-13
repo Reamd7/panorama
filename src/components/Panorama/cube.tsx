@@ -1,12 +1,22 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import './index.css';
-import imageF from '../../assets/F.png';
-import imageB from '../../assets/B.png';
-import imageL from '../../assets/L.png';
-import imageR from '../../assets/R.png';
-import imageU from '../../assets/U.png';
-import imageD from '../../assets/D.png';
+import { sphereImage2boxImage } from '../../utils/geometry';
+import imageUrl from '../../assets/demo1.jpg';
+
+function loadImage(...srcs: string[]) {
+  return Promise.all<HTMLImageElement>(
+    srcs.map(
+      (src) =>
+        new Promise((resolve, reject) => {
+          var image = new Image();
+          image.onload = () => resolve(image);
+          image.onerror = reject;
+          image.src = src;
+        }),
+    ),
+  );
+}
 
 interface PanoramaProps {
   src: string;
@@ -42,24 +52,35 @@ const Panorama: React.FC<PanoramaProps> = ({ src }) => {
     const A180 = Math.PI;
     const A270 = Math.PI * 1.5;
     const transfroms: ((plane: THREE.Object3D) => THREE.Object3D)[] = [
-      (p) => p.translateZ(-size).rotateY(A180),
+      (p) => p.translateZ(-size),
       (p) => p.translateZ(size).rotateY(A180),
-      (p) => p.translateX(-size).rotateY(A270),
       (p) => p.translateX(size).rotateY(A270),
-      (p) => p.translateY(size).rotateX(A90).rotateY(A180).rotateZ(A90),
-      (p) => p.translateY(-size).rotateX(A90).rotateY(A180).rotateZ(A90),
+      (p) => p.translateX(-size).rotateY(A90),
+      (p) => p.translateY(size).rotateX(A90),
+      (p) => p.translateY(-size).rotateX(A270),
     ];
 
-    [imageF, imageB, imageL, imageR, imageU, imageD].forEach((image, i) => {
-      const geometry = new THREE.PlaneGeometry(size * 2, size * 2);
-      const texture = new THREE.TextureLoader().load(image);
-      const material = new THREE.MeshBasicMaterial({
-        map: texture,
-        side: i & 1 ? THREE.FrontSide : THREE.BackSide,
-      });
+    loadImage(imageUrl).then(([image]) => {
+      Promise.all([
+        sphereImage2boxImage(image, 0),
+        sphereImage2boxImage(image, 1),
+        sphereImage2boxImage(image, 2),
+        sphereImage2boxImage(image, 3),
+        sphereImage2boxImage(image, 4),
+        sphereImage2boxImage(image, 5),
+      ]).then((images) =>
+        images.forEach((image, i) => {
+          const geometry = new THREE.PlaneGeometry(size * 2, size * 2);
+          const texture = new THREE.TextureLoader().load(image.src);
+          const material = new THREE.MeshBasicMaterial({
+            map: texture,
+            side: THREE.FrontSide,
+          });
 
-      const plane = new THREE.Mesh(geometry, material);
-      scene.add(transfroms[i](plane));
+          const plane = new THREE.Mesh(geometry, material);
+          scene.add(transfroms[i](plane));
+        }),
+      );
     });
 
     let rafId = -1;
