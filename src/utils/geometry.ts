@@ -15,7 +15,7 @@ export function xyz2latlnt(x: number, y: number, z: number): [number, number] {
   const absy = Math.abs(y);
   const absxy = Math.sqrt(absx * absx + absy * absy);
 
-  const lat = -Math.atan2(z, absxy);
+  const lat = Math.atan2(z, absxy);
   let lng = Math.atan2(y, x);
   if (lng < 0) lng += D360;
 
@@ -40,16 +40,22 @@ export enum Face {
 export function uv2latlnt(face: Face, u: number, v: number) {
   switch (face) {
     case Face.FRONT:
-      return xyz2latlnt(u, -1, v);
-    case Face.BACK:
-      return xyz2latlnt(u, 1, v);
-    case Face.RIGHT:
+      // FRONT
       return xyz2latlnt(-1, u, v);
-    case Face.LEFT:
+    case Face.BACK:
+      // BACK
       return xyz2latlnt(1, u, v);
+    case Face.RIGHT:
+      // RIGHT
+      return xyz2latlnt(u, -1, v);
+    case Face.LEFT:
+      // LEFT
+      return xyz2latlnt(u, 1, v);
     case Face.UP:
+      // UP
       return xyz2latlnt(u, v, 1);
     case Face.DOWN:
+      // DOWN
       return xyz2latlnt(u, v, -1);
     // no defalut
   }
